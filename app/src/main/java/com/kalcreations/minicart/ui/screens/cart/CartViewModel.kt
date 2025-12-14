@@ -6,6 +6,8 @@ import com.kalcreations.minicart.data.model.Product
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 class CartViewModel : ViewModel() {
 
@@ -15,10 +17,6 @@ class CartViewModel : ViewModel() {
     fun addToCart(product: Product) {
         val currentItems = _uiState.value.cartItems.toMutableList()
         val index = currentItems.indexOfFirst { it.product.id == product.id }
-        val subtotal = calculateSubtotal(currentItems)
-        val tax = calculateTax(currentItems)
-        val (isApplicable, reason) =
-            getCouponEligibility(currentItems, subtotal)
 
         if (index >= 0) {
             val item = currentItems[index]
@@ -27,11 +25,21 @@ class CartViewModel : ViewModel() {
             currentItems.add(CartItem(product, 1))
         }
 
+        val subtotal = calculateSubtotal(currentItems)
+        val tax = calculateTax(currentItems)
+        val (isApplicable, reason) =
+            getCouponEligibility(currentItems, subtotal)
+        val finalAmount = roundToTwoDecimals(subtotal + tax)
+
         _uiState.value = _uiState.value.copy(
             cartItems = currentItems,
             subtotal = subtotal,
             taxTotal = tax,
-            finalAmount = subtotal + tax,
+            finalAmount = finalAmount,
+            isCouponApplied = false,
+            couponDiscount = 0.0,
+            couponInlineMessage = null,
+            snackBarMessage = null,
             isCouponApplicable = isApplicable,
             couponDisabledReason = reason
         )
@@ -48,13 +56,18 @@ class CartViewModel : ViewModel() {
         val tax = calculateTax(updatedItems)
         val (isApplicable, reason) =
             getCouponEligibility(updatedItems, subtotal)
+        val finalAmount = roundToTwoDecimals(subtotal + tax)
 
 
         _uiState.value = _uiState.value.copy(
             cartItems = updatedItems,
             subtotal = subtotal,
             taxTotal = tax,
-            finalAmount = subtotal + tax,
+            finalAmount = finalAmount,
+            isCouponApplied = false,
+            couponDiscount = 0.0,
+            couponInlineMessage = null,
+            snackBarMessage = null,
             isCouponApplicable = isApplicable,
             couponDisabledReason = reason
         )
@@ -73,12 +86,17 @@ class CartViewModel : ViewModel() {
         val tax = calculateTax(updatedItems)
         val (isApplicable, reason) =
             getCouponEligibility(updatedItems, subtotal)
+        val finalAmount = roundToTwoDecimals(subtotal + tax)
 
         _uiState.value = _uiState.value.copy(
             cartItems = updatedItems,
             subtotal = subtotal,
             taxTotal = tax,
-            finalAmount = subtotal + tax,
+            finalAmount = finalAmount,
+            isCouponApplied = false,
+            couponDiscount = 0.0,
+            couponInlineMessage = null,
+            snackBarMessage = null,
             isCouponApplicable = isApplicable,
             couponDisabledReason = reason
         )
@@ -93,27 +111,33 @@ class CartViewModel : ViewModel() {
         val tax = calculateTax(updatedItems)
         val (isApplicable, reason) =
             getCouponEligibility(updatedItems, subtotal)
+        val finalAmount = roundToTwoDecimals(subtotal + tax)
 
         _uiState.value = _uiState.value.copy(
             cartItems = updatedItems,
             subtotal = subtotal,
             taxTotal = tax,
-            finalAmount = subtotal + tax,
+            finalAmount = finalAmount,
+            isCouponApplied = false,
+            couponDiscount = 0.0,
+            couponInlineMessage = null,
+            snackBarMessage = null,
             isCouponApplicable = isApplicable,
             couponDisabledReason = reason
         )
     }
 
     private fun calculateSubtotal(cartItems: List<CartItem>): Double {
-        return cartItems.sumOf { item ->
+        val subtotal = cartItems.sumOf { item ->
             val unitPrice =
                 item.product.preDiscountPrice ?: item.product.originalPrice
             unitPrice * item.quantity
         }
+        return roundToTwoDecimals(subtotal)
     }
 
     private fun calculateTax(cartItems: List<CartItem>): Double {
-        return cartItems.sumOf { item ->
+        val tax =  cartItems.sumOf { item ->
             val unitPrice =
                 item.product.preDiscountPrice ?: item.product.originalPrice
 
@@ -122,6 +146,7 @@ class CartViewModel : ViewModel() {
 
             itemTotal * taxRate
         }
+        return roundToTwoDecimals(tax)
     }
 
     private fun hasNonDiscountedItem(cartItems: List<CartItem>): Boolean {
@@ -156,8 +181,9 @@ class CartViewModel : ViewModel() {
             }
 
         val discount = eligibleAmount * 0.20
-        return discount.coerceAtMost(300.0)
+        return roundToTwoDecimals(discount.coerceAtMost(300.0))
     }
+
 
     fun applyCoupon() {
         val currentState = _uiState.value
@@ -169,24 +195,56 @@ class CartViewModel : ViewModel() {
         val discount = calculateCouponDiscount(currentState.cartItems)
 
         val finalAmount =
-            currentState.subtotal - discount + currentState.taxTotal
+            roundToTwoDecimals(currentState.subtotal - discount + currentState.taxTotal)
 
-        val message = when {
+        val inlineMessage = when {
             discount == 300.0 ->
                 "Coupon applied. Maximum discount of ₹300 used."
             currentState.cartItems.any { it.product.isPreDiscounted } ->
                 "Coupon applied. Discount applied only on non-discounted items."
             else ->
-                "Coupon applied successfully."
+                "Coupon applied. You saved ₹$discount"
         }
 
         _uiState.value = currentState.copy(
             isCouponApplied = true,
             couponDiscount = discount,
             finalAmount = finalAmount,
-            couponMessage = message
+            couponInlineMessage = inlineMessage,
+            snackBarMessage = "Coupon Applied Successfully"
         )
     }
+
+    private fun roundToTwoDecimals(value: Double): Double {
+        return BigDecimal(value)
+            .setScale(2, RoundingMode.HALF_UP)
+            .toDouble()
+    }
+
+    fun removeCoupon() {
+        val currentState = _uiState.value
+
+        val finalAmount =
+            roundToTwoDecimals(currentState.subtotal + currentState.taxTotal)
+
+        // Recalculate eligibility again
+        val (isApplicable, reason) =
+            getCouponEligibility(
+                currentState.cartItems,
+                subtotal = currentState.subtotal
+            )
+
+        _uiState.value = currentState.copy(
+            isCouponApplied = false,
+            couponDiscount = 0.0,
+            couponInlineMessage = null,
+            snackBarMessage = null,
+            finalAmount = finalAmount,
+            isCouponApplicable = isApplicable,
+            couponDisabledReason = reason
+        )
+    }
+
 
 }
 

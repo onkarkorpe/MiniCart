@@ -3,16 +3,17 @@ package com.kalcreations.minicart.ui.screens.productlist
 import androidx.lifecycle.ViewModel
 import com.kalcreations.minicart.data.model.Product
 import com.kalcreations.minicart.data.repository.ProductRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class ProductListViewModel : ViewModel() {
 
-    val products: List<Product> = ProductRepository.getProducts()
+    private val _products = MutableStateFlow(
+        ProductRepository.getProducts()
+    )
 
-    var cartCount = 0
-        private set
+    val products : StateFlow<List<Product>> = _products.asStateFlow()
 
-    fun addToCart(product: Product) {
-        cartCount += 1
-    }
 }
 

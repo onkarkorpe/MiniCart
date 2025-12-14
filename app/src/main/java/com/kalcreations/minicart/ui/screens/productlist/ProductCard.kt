@@ -95,7 +95,13 @@ fun ProductCard(
 
             AssistChip(
                 onClick = {},
-                label = { Text("${product.taxGroupPercent}% Tax") }
+                label = {
+                    Text(
+                        text = "${product.taxGroupPercent}% Tax",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                },
+                modifier = Modifier.height(20.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))

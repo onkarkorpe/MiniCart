@@ -16,30 +16,37 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.kalcreations.minicart.ui.theme.MiniCartTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartScreen(
+    viewModel: CartViewModel,
     onBack: () -> Unit,
-    onCheckoutClick: () -> Unit
+    onCheckoutClick: () -> Unit,
+    onContinueShopping: () -> Unit
 ) {
-    // Temporary sample data (UI only)
-    val cartItems = listOf(
-        CartItemSample.wirelessHeadphone,
-        CartItemSample.bluetoothSpeaker,
-        CartItemSample.earbuds,
-        CartItemSample.phoneCase,
-        CartItemSample.powerBank
-    )
+    val uiState by viewModel.uiState.collectAsState()
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.snackBarMessage) {
+        uiState.snackBarMessage?.let {
+            snackBarHostState.showSnackbar(it)
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackBarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Cart") },
@@ -54,56 +61,69 @@ fun CartScreen(
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-        ) {
-
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+        if(uiState.cartItems.isEmpty()) {
+            EmptyCartContent(
+                onContinueShopping = {
+                    onContinueShopping()
+                }
+            )
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(padding)
+                    .fillMaxSize()
             ) {
-                items(cartItems) { item ->
-                    CartItemCard(
-                        cartItem = item,
-                        onIncrease = {},
-                        onDecrease = {},
-                        onRemove = {}
-                    )
+
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(uiState.cartItems) { cartItem ->
+                        CartItemCard(
+                            cartItem = cartItem,
+                            onIncrease = {
+                                viewModel.increaseQuantity(cartItem.product.id)
+                            },
+                            onDecrease = {
+                                viewModel.decreaseQuantity(cartItem.product.id)
+                            },
+                            onRemove = {
+                                viewModel.removeItem(cartItem.product.id)
+                            }
+                        )
+                    }
+                }
+
+                CouponSection(
+                    isCouponApplied = uiState.isCouponApplied,
+                    isApplyEnabled = uiState.isCouponApplicable,
+                    disabledMessage = uiState.couponDisabledReason,
+                    successMessage = uiState.couponInlineMessage,
+                    onApplyCoupon = { viewModel.applyCoupon() },
+                    onRemoveCoupon = { viewModel.removeCoupon() }
+                )
+
+                TotalsSection(
+                    subtotal = uiState.subtotal,
+                    cuponDiscount = uiState.couponDiscount,
+                    taxTotal = uiState.taxTotal,
+                    finalAmount = uiState.finalAmount
+                )
+
+                Button(
+                    onClick = onCheckoutClick,
+                    enabled = uiState.cartItems.isNotEmpty(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text("Checkout")
                 }
             }
-
-            CouponSection(
-                isApplyEnabled = false,
-                disabledMessage = "Add items worth ₹1000 to apply this coupon",
-                onApplyCoupon = {}
-            )
-
-            TotalsSection()
-
-            Button(
-                onClick = onCheckoutClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp, start = 16.dp, end = 16.dp),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text("Checkout")
-            }
         }
-    }
-}
-
-
-@Preview
-@Composable
-fun CartScreenPreview() {
-    MiniCartTheme() {
-        CartScreen(
-            onBack = { },
-            onCheckoutClick = {}
-        )
     }
 }

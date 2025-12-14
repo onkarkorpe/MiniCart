@@ -8,7 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TotalsSection() {
+fun TotalsSection(
+    subtotal: Double,
+    cuponDiscount: Double,
+    taxTotal: Double,
+    finalAmount: Double
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -17,15 +22,15 @@ fun TotalsSection() {
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
 
-            TotalsRow("Subtotal", "₹0.00")
-            TotalsRow("Discount", "-₹0.00")
-            TotalsRow("Tax", "₹0.00")
+            TotalsRow("Subtotal", subtotal.toString())
+            TotalsRow("Discount", "-${ cuponDiscount }")
+            TotalsRow("Tax", taxTotal.toString())
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             TotalsRow(
                 label = "Final Amount",
-                value = "₹0.00",
+                value = finalAmount.toString(),
                 bold = true
             )
         }

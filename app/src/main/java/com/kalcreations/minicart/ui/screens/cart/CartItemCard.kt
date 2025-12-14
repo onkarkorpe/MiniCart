@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.kalcreations.minicart.R
 import com.kalcreations.minicart.data.model.CartItem
@@ -82,7 +81,9 @@ fun CartItemCard(
                 // Product name
                 Text(
                     text = cartItem.product.name,
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 // Price row
@@ -105,16 +106,18 @@ fun CartItemCard(
                     }
                 }
 
+                Spacer(modifier = Modifier.height(4.dp))
+
                 // Tax chip
                 AssistChip(
                     onClick = {},
                     label = {
                         Text(
                             text = "${cartItem.product.taxGroupPercent}% Tax",
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelSmall
                         )
                     },
-                    modifier = Modifier.height(26.dp)
+                    modifier = Modifier.height(20.dp)
                 )
 
                 // Quantity controls (smart delete)
@@ -138,54 +141,3 @@ fun CartItemCard(
         }
     }
 }
-
-/*
-@Composable
-fun CartItemCard(
-    cartItem: CartItem,
-    onIncrease: () -> Unit,
-    onDecrease: () -> Unit,
-    onRemove: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        elevation = CardDefaults.cardElevation(2.dp)
-    ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-
-            Text(
-                text = cartItem.product.name,
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = "₹${cartItem.product.preDiscountPrice ?: cartItem.product.originalPrice}",
-                style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                QuantitySelector(
-                    quantity = cartItem.quantity,
-                    onIncrease = onIncrease,
-                    onDecrease = onDecrease,
-                    onRemove = onRemove
-                )
-
-                TextButton(onClick = onRemove) {
-                    Text("Remove")
-                }
-            }
-        }
-    }
-}
-
- */

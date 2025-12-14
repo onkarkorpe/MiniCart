@@ -1,19 +1,27 @@
 package com.kalcreations.minicart.ui.screens.cart
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun CouponSection(
+    isCouponApplied: Boolean,
     isApplyEnabled: Boolean,
     disabledMessage: String?,
-    onApplyCoupon: () -> Unit
+    successMessage: String?,
+    onApplyCoupon: () -> Unit,
+    onRemoveCoupon: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -40,7 +48,7 @@ fun CouponSection(
             )
 
             // Disabled reason (only when needed)
-            if (!isApplyEnabled && !disabledMessage.isNullOrBlank()) {
+            if (!isApplyEnabled && !isCouponApplied && !disabledMessage.isNullOrBlank()) {
                 Text(
                     text = disabledMessage,
                     style = MaterialTheme.typography.bodySmall,
@@ -48,37 +56,25 @@ fun CouponSection(
                 )
             }
 
+            if(isCouponApplied && !successMessage.isNullOrBlank()) {
+                Text(
+                    text = successMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
             // Apply button
             Button(
-                onClick = onApplyCoupon,
-                enabled = isApplyEnabled,
+                onClick = if(isCouponApplied) onRemoveCoupon else onApplyCoupon,
+                enabled = isCouponApplied || isApplyEnabled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Apply Coupon",
+                    text = if(isCouponApplied) "Remove Coupon" else "Apply Coupon",
                     textAlign = TextAlign.Center
                 )
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CouponSectionEnabledPreview() {
-    CouponSection(
-        isApplyEnabled = true,
-        disabledMessage = null,
-        onApplyCoupon = {}
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CouponSectionDisabledPreview() {
-    CouponSection(
-        isApplyEnabled = false,
-        disabledMessage = "Add items worth ₹1000 to apply this coupon",
-        onApplyCoupon = {}
-    )
 }
