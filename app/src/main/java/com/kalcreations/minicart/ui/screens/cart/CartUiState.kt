@@ -7,6 +7,8 @@ data class CartUiState(
 
     // Coupon related (logic later)
     val isCouponApplied: Boolean = false,
+    val isCouponApplicable: Boolean = false,
+    val couponDisabledReason: String? = null,
     val couponDiscount: Double = 0.0,
     val couponMessage: String? = null,
 
