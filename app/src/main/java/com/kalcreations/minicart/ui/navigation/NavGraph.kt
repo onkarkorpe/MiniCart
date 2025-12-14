@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.kalcreations.minicart.ui.screens.cart.CartScreen
 import com.kalcreations.minicart.ui.screens.cart.CartViewModel
+import com.kalcreations.minicart.ui.screens.checkout.CheckoutSuccessScreen
 import com.kalcreations.minicart.ui.screens.productlist.ProductListScreen
 import com.kalcreations.minicart.ui.screens.productlist.ProductListViewModel
 
@@ -45,9 +46,10 @@ fun NavGraph(
         }
 
         composable(Routes.CHECKOUT) {
-//            CheckoutSuccessScreen(
-//                onBackToHome = { navController.navigate(Routes.PRODUCT_LIST) }
-//            )
+            CheckoutSuccessScreen(
+                cartViewModel = cartViewModel,
+                onContinueShopping = { navController.popBackStack(Routes.PRODUCT_LIST, inclusive = false) }
+            )
         }
     }
 }

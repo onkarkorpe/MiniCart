@@ -245,6 +245,8 @@ class CartViewModel : ViewModel() {
         )
     }
 
-
+    fun checkout() {
+        _uiState.value = CartUiState()
+    }
 }
 

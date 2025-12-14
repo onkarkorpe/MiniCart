@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -41,7 +42,10 @@ fun CartScreen(
 
     LaunchedEffect(uiState.snackBarMessage) {
         uiState.snackBarMessage?.let {
-            snackBarHostState.showSnackbar(it)
+            snackBarHostState.showSnackbar(
+                message = it,
+                duration = SnackbarDuration.Short
+            )
         }
     }
 
@@ -114,7 +118,9 @@ fun CartScreen(
                 )
 
                 Button(
-                    onClick = onCheckoutClick,
+                    onClick = {
+                        onCheckoutClick()
+                    },
                     enabled = uiState.cartItems.isNotEmpty(),
                     modifier = Modifier
                         .fillMaxWidth()
