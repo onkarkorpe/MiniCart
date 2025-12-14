@@ -22,15 +22,16 @@ fun TotalsSection(
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
 
-            TotalsRow("Subtotal", subtotal.toString())
-            TotalsRow("Discount", "-${ cuponDiscount }")
-            TotalsRow("Tax", taxTotal.toString())
+            TotalsRow("Subtotal", "₹${"%.2f".format(subtotal)}")
+            TotalsRow("Discount", "-₹${"%.2f".format(cuponDiscount)}")
+            TotalsRow("Tax", "₹${"%.2f".format(taxTotal)}")
+
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
             TotalsRow(
                 label = "Final Amount",
-                value = finalAmount.toString(),
+                value = "₹${"%.2f".format(finalAmount)}",
                 bold = true
             )
         }

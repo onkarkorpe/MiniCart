@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -74,8 +76,9 @@ fun ProductCard(
             if (product.isPreDiscounted) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        "₹${product.preDiscountPrice}",
-                        style = MaterialTheme.typography.titleMedium
+                        text = "₹${product.preDiscountPrice}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
@@ -101,6 +104,9 @@ fun ProductCard(
                         style = MaterialTheme.typography.labelSmall
                     )
                 },
+                colors = AssistChipDefaults.assistChipColors(
+                    labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
                 modifier = Modifier.height(20.dp)
             )
 

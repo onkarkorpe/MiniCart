@@ -60,7 +60,7 @@ fun CouponSection(
                 Text(
                     text = successMessage,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
 
