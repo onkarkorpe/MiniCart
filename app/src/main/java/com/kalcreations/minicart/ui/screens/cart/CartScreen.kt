@@ -76,7 +76,7 @@ fun CartScreen(
             }
 
             CouponSection(
-                isApplyEnabled = true,
+                isApplyEnabled = false,
                 disabledMessage = "Add items worth ₹1000 to apply this coupon",
                 onApplyCoupon = {}
             )

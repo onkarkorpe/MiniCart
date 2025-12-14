@@ -1,14 +1,13 @@
 package com.kalcreations.minicart.ui.navigation
 
-/*
+
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.minicart.ui.screens.productlist.ProductListScreen
-import com.minicart.ui.screens.cart.CartScreen
-import com.minicart.ui.screens.checkout.CheckoutSuccessScreen
+import com.kalcreations.minicart.ui.screens.cart.CartScreen
+import com.kalcreations.minicart.ui.screens.productlist.ProductListScreen
 
 @Composable
 fun NavGraph(
@@ -26,16 +25,16 @@ fun NavGraph(
 
         composable(Routes.CART) {
             CartScreen(
-                onCheckoutSuccess = { navController.navigate(Routes.CHECKOUT) }
+                onBack = { navController.navigate(Routes.PRODUCT_LIST) },
+                onCheckoutClick = { navController.navigate(Routes.CHECKOUT) }
             )
         }
 
         composable(Routes.CHECKOUT) {
-            CheckoutSuccessScreen(
-                onBackToHome = { navController.navigate(Routes.PRODUCT_LIST) }
-            )
+//            CheckoutSuccessScreen(
+//                onBackToHome = { navController.navigate(Routes.PRODUCT_LIST) }
+//            )
         }
     }
 }
 
- */
